@@ -3,7 +3,7 @@ package yuima.util.progress
 import java.time.format.DateTimeFormatter
 import java.time.{Duration, LocalDateTime, LocalTime, Period}
 
-import org.jline.terminal.TerminalBuilder
+import org.jline.terminal.{Terminal, TerminalBuilder}
 
 import scala.collection.GenTraversableOnce
 import scala.collection.generic.FilterMonadic

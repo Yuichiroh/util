@@ -37,9 +37,6 @@ package object control {
 
   def withLogFile[A](log: PrintStream)(op: => A): A = withRedirectingTo(log, log)(op)
 
-  def withRedirectingTo[A](out: PrintStream, err: PrintStream)(op: => A): A =
-    Console.withOut(out) { Console.withErr(err)(op) }
-
   def withLogFile[A](file: File)(op: => A): A = withLogFile(IO.Out.ps(file))(op)
 
   def withRedirectingTo[A](out: String, err: String)(op: => A): A =
@@ -50,6 +47,9 @@ package object control {
   def withRedirectingTo[A](out: String, err: File)(op: => A): A = withRedirectingTo(IO.Out.ps(out), IO.Out.ps(err))(op)
 
   def withRedirectingTo[A](out: File, err: String)(op: => A): A = withRedirectingTo(IO.Out.ps(out), IO.Out.ps(err))(op)
+
+  def withRedirectingTo[A](out: PrintStream, err: PrintStream)(op: => A): A =
+    Console.withOut(out) { Console.withErr(err)(op) }
 
   def withRedirectingTo[A](out: String, err: PrintStream)(op: => A): A = withRedirectingTo(IO.Out.ps(out), err)(op)
 
@@ -100,6 +100,10 @@ package object control {
     def withProgressBar = ProgressBar(collection)
 
     def withProgressBar(name: String) = ProgressBar(collection, name)
+  }
+
+  implicit class ArgmaxColl[A, CC[X] <: Seq[X]](val coll: CC[A]) extends AnyVal {
+    def argmax(implicit o:Ordering[A]): Int = coll.indices.maxBy(coll)
   }
 
 }
