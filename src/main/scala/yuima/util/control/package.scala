@@ -48,12 +48,12 @@ package object control {
 
   def withRedirectingTo[A](out: File, err: String)(op: => A): A = withRedirectingTo(IO.Out.ps(out), IO.Out.ps(err))(op)
 
-  def withRedirectingTo[A](out: PrintStream, err: PrintStream)(op: => A): A =
-    Console.withOut(out) { Console.withErr(err)(op) }
-
   def withRedirectingTo[A](out: String, err: PrintStream)(op: => A): A = withRedirectingTo(IO.Out.ps(out), err)(op)
 
   def withRedirectingTo[A](out: File, err: PrintStream)(op: => A): A = withRedirectingTo(IO.Out.ps(out), err)(op)
+
+  def withRedirectingTo[A](out: PrintStream, err: PrintStream)(op: => A): A =
+    Console.withOut(out) { Console.withErr(err)(op) }
 
   def withRedirectingTo[A](out: PrintStream, err: String)(op: => A): A = withRedirectingTo(out, IO.Out.ps(err))(op)
 
@@ -103,7 +103,7 @@ package object control {
   }
 
   implicit class ArgmaxColl[A, CC[X] <: Seq[X]](val coll: CC[A]) extends AnyVal {
-    def argmax(implicit o:Ordering[A]): Int = coll.indices.maxBy(coll)
+    def argmax(implicit o: Ordering[A]): Int = coll.indices.maxBy(coll)
   }
 
 }
