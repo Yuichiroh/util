@@ -1,5 +1,5 @@
 # util4s
-An utility library for scala
+A scala utility library for my personal use
 
 The library includes:
 
