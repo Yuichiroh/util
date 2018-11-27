@@ -19,15 +19,24 @@ object IO {
   }
 
   object In {
+    def ungzipString(str: String): String = {
+      br(new GZIPInputStream(new ByteArrayInputStream(str.getBytes()))).readLine()
+    }
+
+    def br(is: InputStream): BufferedReader = new BufferedReader(new InputStreamReader(is))
+
     def fromFile(path: String)(implicit codec: Codec): BufferedSource = fromFile(new File(expand(path)))
 
     def fromFile(file: File)(implicit codec: Codec): BufferedSource = Source.fromInputStream(fis(file))(codec)
 
+    def fis(file: File): InputStream =
+      if (file.getName.endsWith(".gz")) new GZIPInputStream(new FileInputStream(file))
+      else if (file.getName.endsWith(".bz2")) new BZip2CompressorInputStream(new FileInputStream(file))
+      else new FileInputStream(file)
+
     def readLines: Iterator[String] = scala.io.Source.stdin.getLines
 
     def ois(path: String): ObjectInputStream = ois(fis(expand(path)))
-
-    def ois(is: InputStream): ObjectInputStream = new ObjectInputStream(new BufferedInputStream(is))
 
     def fis(path: String): InputStream =
       if (path.endsWith(".gz")) new GZIPInputStream(new FileInputStream(expand(path)))
@@ -37,14 +46,9 @@ object IO {
 
     def ois(): ObjectInputStream = ois(System.in)
 
-    def br(is: InputStream): BufferedReader = new BufferedReader(new InputStreamReader(is))
+    def ois(is: InputStream): ObjectInputStream = new ObjectInputStream(new BufferedInputStream(is))
 
     def br(file: File): BufferedReader = br(isr(fis(file)))
-
-    def fis(file: File): InputStream =
-      if (file.getName.endsWith(".gz")) new GZIPInputStream(new FileInputStream(file))
-      else if (file.getName.endsWith(".bz2")) new BZip2CompressorInputStream(new FileInputStream(file))
-      else new FileInputStream(file)
 
     def br(reader: Reader): BufferedReader = new BufferedReader(reader)
 
@@ -62,31 +66,9 @@ object IO {
     def pwWithSameSubPath(file: File, baseOld: File, baseNew: File): PrintWriter =
       pw(baseNew + s"${ file.getAbsolutePath diff baseOld.getAbsolutePath }")
 
-    def pw(os: OutputStream): PrintWriter = new PrintWriter(os)
-
-    def pw(file: File): PrintWriter = pw(fos(file))
-
     def pw(path: String): PrintWriter = pw(fos(expand(path)))
 
-    def ps(os: OutputStream): PrintStream = new PrintStream(os)
-
-    def ps(file: File): PrintStream = ps(fos(file))
-
-    def ps(path:String): PrintStream = ps(fos(expand(path)))
-
-    def bw(path: String): BufferedWriter = bw(osw(fos(expand(path))))
-
-    def bw(writer: Writer): BufferedWriter = new BufferedWriter(writer)
-
-    def bw(file: File): BufferedWriter = bw(osw(fos(file)))
-
-    def bw(stream: OutputStream): BufferedWriter = new BufferedWriter(osw(stream))
-
-    def osw(stream: OutputStream): OutputStreamWriter = new OutputStreamWriter(stream)
-
-    def bos(file: File): BufferedOutputStream = new BufferedOutputStream(fos(file))
-
-    def bos(path: String): BufferedOutputStream = new BufferedOutputStream(fos(expand(path)))
+    def pw(os: OutputStream): PrintWriter = new PrintWriter(os)
 
     def fos(path: String): OutputStream = fos(new File(path))
 
@@ -94,6 +76,34 @@ object IO {
       if (file.getName.endsWith(".gz")) new GZIPOutputStream(new FileOutputStream(file))
       else if (file.getName.endsWith(".bz2")) new BZip2CompressorOutputStream(new FileOutputStream(file))
       else new FileOutputStream(file)
+
+    def gzipString(str: String): String = {
+      val w = pw(new GZIPOutputStream(new ByteArrayOutputStream()))
+      w.write(str)
+      w.toString
+    }
+
+    def pw(file: File): PrintWriter = pw(fos(file))
+
+    def ps(file: File): PrintStream = ps(fos(file))
+
+    def ps(os: OutputStream): PrintStream = new PrintStream(os)
+
+    def ps(path: String): PrintStream = ps(fos(expand(path)))
+
+    def bw(path: String): BufferedWriter = bw(osw(fos(expand(path))))
+
+    def bw(writer: Writer): BufferedWriter = new BufferedWriter(writer)
+
+    def osw(stream: OutputStream): OutputStreamWriter = new OutputStreamWriter(stream)
+
+    def bw(file: File): BufferedWriter = bw(osw(fos(file)))
+
+    def bw(stream: OutputStream): BufferedWriter = new BufferedWriter(osw(stream))
+
+    def bos(file: File): BufferedOutputStream = new BufferedOutputStream(fos(file))
+
+    def bos(path: String): BufferedOutputStream = new BufferedOutputStream(fos(expand(path)))
 
     def oos(file: File): ObjectOutputStream = new ObjectOutputStream(bos(fos(file)))
 
