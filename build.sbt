@@ -2,7 +2,9 @@ name := "yuima.util"
 
 version := "1.0"
 
-scalaVersion := "2.11.8"
+scalaVersion := "2.12.8"
+
+crossScalaVersions := Seq("2.11.11", "2.12.8")
 
 scalacOptions += "-deprecation"
 
